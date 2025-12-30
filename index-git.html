@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>For You ❤️</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #ffd6e8, #fff0f6);
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 420px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    h1 {
+      color: #ff4d88;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    .heart {
+      font-size: 2.5rem;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes floatUp {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-300px); }
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 25px;
+      background: #ff4d88;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      position: relative;
+    }
+
+    button:hover {
+      background: #e6005c;
+    }
+
+    .hidden-message {
+      display: none;
+      margin-top: 15px;
+      color: #ff4d88;
+      font-weight: bold;
+    }
+
+    #tease {
+      margin-top: 10px;
+      color: #ff4d88;
+      font-size: 0.9rem;
+    }
+
+    #usButton {
+      display: none;
+      margin-top: 25px;
+      background: #ff85ad;
+    }
+
+    #slideshow {
+      display: none;
+      margin-top: 20px;
+    }
+
+    #slideshow img {
+      width: 100%;
+      border-radius: 15px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    }
+
+    #yearLabel {
+      margin-bottom: 10px;
+      color: #ff4d88;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="heart">❤️</div>
+    <h1>Hey Love</h1>
+    <p>
+      I made this little website just for you.
+      Every smile of yours means the world to me.
+    </p>
+
+    <button id="funButton" onclick="showMessage()">Try to click me 💕</button>
+    <div id="tease">Catch me if you can 😜</div>
+
+    <div class="hidden-message" id="message">
+      As 2025 comes to an end, I just want you to know this from my heart 💖<br/><br/>
+      We have been together since 2022, and every year with you has made my life brighter.
+      You truly mean the world to me. You are my sunshine, my love, my reason to live,
+      my oxygen, my partner, and most of all — my woman 🌷<br/><br/>
+      I would do anything in my power to marry you — in 2027, 2028, or even earlier,
+      whenever <em>you</em> are ready. I choose you, today and always.
+    </div>
+
+    <button id="usButton" onclick="startSlideshow()">US 💑</button>
+
+    <div id="slideshow">
+      <div id="yearLabel"></div>
+      <img id="slideImage" src="" alt="Us" />
+    </div>
+  </div>
+
+  <audio id="bgMusic" loop>
+    <source src="music.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script>
+    const button = document.getElementById('funButton');
+    const tease = document.getElementById('tease');
+    const music = document.getElementById('bgMusic');
+    const usButton = document.getElementById('usButton');
+    const slideshow = document.getElementById('slideshow');
+    const slideImage = document.getElementById('slideImage');
+    const yearLabel = document.getElementById('yearLabel');
+
+    let clicked = false;
+    let photos = {};
+    let years = [];
+    let yearIndex = 0;
+    let photoIndex = 0;
+
+    function moveButton() {
+      if (clicked) return;
+      const x = Math.random() * 120 - 60;
+      const y = Math.random() * 120 - 60;
+      button.style.transform = `translate(${x}px, ${y}px)`;
+    }
+
+    button.addEventListener('mouseover', moveButton);
+    button.addEventListener('touchstart', moveButton);
+
+    async function showMessage() {
+      clicked = true;
+      button.removeEventListener('mouseover', moveButton);
+      button.removeEventListener('touchstart', moveButton);
+
+      document.getElementById('message').style.display = 'block';
+      tease.innerText = 'Ok you caught me 😘';
+      button.innerText = 'You win 💕';
+      button.disabled = true;
+      button.style.cursor = 'default';
+      button.style.transform = 'translate(0, 0)';
+
+      usButton.style.display = 'inline-block';
+
+      music.volume = 0.6;
+      music.play().catch(() => {});
+
+      for (let i = 0; i < 15; i++) {
+        const heart = document.createElement('div');
+        heart.innerText = '💖';
+        heart.style.position = 'fixed';
+        heart.style.left = Math.random() * window.innerWidth + 'px';
+        heart.style.top = window.innerHeight + 'px';
+        heart.style.fontSize = '1.5rem';
+        heart.style.animation = 'floatUp 3s ease-out forwards';
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 3000);
+      }
+    }
+
+    async function startSlideshow() {
+      usButton.style.display = 'none';
+      slideshow.style.display = 'block';
+
+      if (years.length === 0) {
+        const response = await fetch('photos.json');
+        photos = await response.json();
+        years = Object.keys(photos).sort();
+      }
+
+      showNextImage();
+    }
+
+    function showNextImage() {
+      const year = years[yearIndex];
+      const images = photos[year];
+
+      yearLabel.innerText = `Us in ${year}`;
+      slideImage.src = `${year}/${images[photoIndex]}`;
+
+      photoIndex++;
+      if (photoIndex >= images.length) {
+        photoIndex = 0;
+        yearIndex = (yearIndex + 1) % years.length;
+      }
+
+      setTimeout(showNextImage, 2500);
+    }
+  </script>
+</body>
+</html>
