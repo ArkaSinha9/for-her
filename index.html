@@ -62,8 +62,7 @@
       color: white;
       font-size: 1rem;
       cursor: pointer;
-      transition: background 0.3s, transform 0.2s;
-      position: relative;
+      transition: background 0.3s;
     }
 
     button:hover {
@@ -89,6 +88,7 @@
       background: #ff85ad;
     }
 
+    /* 🎞️ SLIDESHOW FRAME — FIXED SIZE */
     #slideshow {
       display: none;
       margin-top: 25px;
@@ -100,12 +100,22 @@
       font-weight: bold;
     }
 
-    #slideshow img {
+    .image-frame {
       width: 100%;
-      height: 260px;
-      object-fit: cover;
+      aspect-ratio: 4 / 5;       /* PERFECT FOR MIXED PHOTOS */
+      background: #fff0f6;
       border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
       box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    }
+
+    .image-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;       /* NO CROP, NO STRETCH */
     }
 
     /* 🌸 FINAL MESSAGE */
@@ -152,7 +162,9 @@
 
     <div id="slideshow">
       <div id="yearLabel"></div>
-      <img id="slideImage" src="" alt="Us" />
+      <div class="image-frame">
+        <img id="slideImage" src="" alt="Us" />
+      </div>
     </div>
 
     <div id="finalMessage">
@@ -165,8 +177,6 @@
   </audio>
 
   <script>
-    const button = document.getElementById('funButton');
-    const tease = document.getElementById('tease');
     const music = document.getElementById('bgMusic');
     const usButton = document.getElementById('usButton');
     const slideshow = document.getElementById('slideshow');
@@ -174,100 +184,62 @@
     const yearLabel = document.getElementById('yearLabel');
     const finalMessage = document.getElementById('finalMessage');
 
-    let clicked = false;
     let photos = {};
     let years = [];
     let yearIndex = 0;
     let photoIndex = 0;
-    let slideshowInterval;
-    let fadeInterval;
+    let interval;
 
-    function moveButton() {
-      if (clicked) return;
-      const x = Math.random() * 120 - 60;
-      const y = Math.random() * 120 - 60;
-      button.style.transform = `translate(${x}px, ${y}px)`;
-    }
-
-    button.addEventListener('mouseover', moveButton);
-    button.addEventListener('touchstart', moveButton);
-
-    async function showMessage() {
-      clicked = true;
-      button.removeEventListener('mouseover', moveButton);
-      button.removeEventListener('touchstart', moveButton);
-
+    function showMessage() {
       document.getElementById('message').style.display = 'block';
-      tease.innerText = 'Ok you caught me 😘';
-      button.innerText = 'You win 💕';
-      button.disabled = true;
-      button.style.cursor = 'default';
-      button.style.transform = 'translate(0, 0)';
-
+      document.getElementById('funButton').disabled = true;
+      document.getElementById('tease').innerText = 'Ok you caught me 😘';
       usButton.style.display = 'inline-block';
 
       music.volume = 0.6;
       music.play().catch(() => {});
-
-      for (let i = 0; i < 15; i++) {
-        const heart = document.createElement('div');
-        heart.innerText = '💖';
-        heart.style.position = 'fixed';
-        heart.style.left = Math.random() * window.innerWidth + 'px';
-        heart.style.top = window.innerHeight + 'px';
-        heart.style.fontSize = '1.5rem';
-        heart.style.animation = 'floatUp 3s ease-out forwards';
-        document.body.appendChild(heart);
-        setTimeout(() => heart.remove(), 3000);
-      }
     }
 
     async function startSlideshow() {
       usButton.style.display = 'none';
       slideshow.style.display = 'block';
 
-      const response = await fetch('photos.json');
-      photos = await response.json();
+      const res = await fetch('photos.json');
+      photos = await res.json();
       years = Object.keys(photos).sort();
 
-      slideshowInterval = setInterval(showNextImage, 2500);
-      showNextImage();
+      interval = setInterval(showNext, 2500);
+      showNext();
     }
 
-    function showNextImage() {
+    function showNext() {
       const year = years[yearIndex];
-      const images = photos[year];
+      const imgs = photos[year];
 
       yearLabel.innerText = `Us in ${year}`;
-      slideImage.src = `${year}/${images[photoIndex]}`;
+      slideImage.src = `${year}/${imgs[photoIndex]}`;
 
       photoIndex++;
-
-      if (photoIndex >= images.length) {
+      if (photoIndex >= imgs.length) {
         photoIndex = 0;
         yearIndex++;
       }
 
       if (yearIndex >= years.length) {
-        clearInterval(slideshowInterval);
-        endStory();
+        clearInterval(interval);
+        slideshow.style.display = 'none';
+        finalMessage.style.display = 'block';
+        fadeOutMusic();
       }
     }
 
-    function endStory() {
-      slideshow.style.display = 'none';
-      finalMessage.style.display = 'block';
-      fadeOutMusic();
-    }
-
     function fadeOutMusic() {
-      fadeInterval = setInterval(() => {
+      const fade = setInterval(() => {
         if (music.volume > 0.02) {
           music.volume -= 0.02;
         } else {
-          music.volume = 0;
           music.pause();
-          clearInterval(fadeInterval);
+          clearInterval(fade);
         }
       }, 200);
     }
