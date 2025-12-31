@@ -25,6 +25,7 @@
       width: 90%;
       text-align: center;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      position: relative;
     }
 
     h1 {
@@ -62,7 +63,8 @@
       color: white;
       font-size: 1rem;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: background 0.3s, transform 0.2s;
+      position: relative;
     }
 
     button:hover {
@@ -92,7 +94,7 @@
     #slideshow {
       display: none;
       margin-top: 25px;
-      height: 280px;              /* FIXED SPACE */
+      height: 280px;
     }
 
     #yearLabel {
@@ -103,7 +105,7 @@
 
     #slideshow img {
       max-width: 100%;
-      max-height: 230px;          /* IMAGE SCALES DOWN */
+      max-height: 230px;
       width: auto;
       height: auto;
       border-radius: 15px;
@@ -138,7 +140,7 @@
       Every smile of yours means the world to me.
     </p>
 
-    <button id="funButton" onclick="showMessage()">Try to click me 💕</button>
+    <button id="funButton">Try to click me 💕</button>
     <div id="tease">Catch me if you can 😜</div>
 
     <div class="hidden-message" id="message">
@@ -150,7 +152,7 @@
       whenever <em>you</em> are ready. I choose you, today and always.
     </div>
 
-    <button id="usButton" onclick="startSlideshow()">US 💑</button>
+    <button id="usButton">US 💑</button>
 
     <div id="slideshow">
       <div id="yearLabel"></div>
@@ -167,6 +169,8 @@
   </audio>
 
   <script>
+    const funButton = document.getElementById('funButton');
+    const tease = document.getElementById('tease');
     const music = document.getElementById('bgMusic');
     const usButton = document.getElementById('usButton');
     const slideshow = document.getElementById('slideshow');
@@ -174,23 +178,42 @@
     const yearLabel = document.getElementById('yearLabel');
     const finalMessage = document.getElementById('finalMessage');
 
+    let clicked = false;
+
+    // 🏃‍♀️ Button runs away until clicked
+    function moveButton() {
+      if (clicked) return;
+
+      const x = Math.random() * 160 - 80;
+      const y = Math.random() * 120 - 60;
+      funButton.style.transform = `translate(${x}px, ${y}px)`;
+    }
+
+    funButton.addEventListener('mouseover', moveButton);
+
+    funButton.addEventListener('click', () => {
+      clicked = true;
+      funButton.removeEventListener('mouseover', moveButton);
+      funButton.style.transform = 'translate(0,0)';
+      funButton.disabled = true;
+      funButton.innerText = 'Good girl 😘';
+      tease.innerText = 'Ok you caught me 😘';
+
+      document.getElementById('message').style.display = 'block';
+      usButton.style.display = 'inline-block';
+
+      music.volume = 0.6;
+      music.play().catch(() => {});
+    });
+
+    // 📸 Slideshow logic (unlimited images via photos.json)
     let photos = {};
     let years = [];
     let yearIndex = 0;
     let photoIndex = 0;
     let interval;
 
-    function showMessage() {
-      document.getElementById('message').style.display = 'block';
-      document.getElementById('funButton').disabled = true;
-      document.getElementById('tease').innerText = 'Ok you caught me 😘';
-      usButton.style.display = 'inline-block';
-
-      music.volume = 0.6;
-      music.play().catch(() => {});
-    }
-
-    async function startSlideshow() {
+    usButton.addEventListener('click', async () => {
       usButton.style.display = 'none';
       slideshow.style.display = 'block';
 
@@ -200,7 +223,7 @@
 
       interval = setInterval(showNext, 2500);
       showNext();
-    }
+    });
 
     function showNext() {
       const year = years[yearIndex];
@@ -210,6 +233,7 @@
       slideImage.src = `${year}/${imgs[photoIndex]}`;
 
       photoIndex++;
+
       if (photoIndex >= imgs.length) {
         photoIndex = 0;
         yearIndex++;
