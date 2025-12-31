@@ -25,6 +25,7 @@
       width: 90%;
       text-align: center;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      position: relative;
     }
 
     h1 {
@@ -48,11 +49,6 @@
       100% { transform: scale(1); }
     }
 
-    @keyframes floatUp {
-      from { opacity: 1; transform: translateY(0); }
-      to { opacity: 0; transform: translateY(-300px); }
-    }
-
     button {
       margin-top: 20px;
       padding: 10px 22px;
@@ -62,7 +58,7 @@
       color: white;
       font-size: 1rem;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: background 0.3s, transform 0.2s;
     }
 
     button:hover {
@@ -88,11 +84,10 @@
       background: #ff85ad;
     }
 
-    /* 🖼️ SLIDESHOW — RESIZE ONLY (NO CROP) */
+    /* 🖼️ SLIDESHOW — WHATSAPP STYLE */
     #slideshow {
       display: none;
       margin-top: 25px;
-      height: 280px;              /* FIXED SPACE */
     }
 
     #yearLabel {
@@ -101,16 +96,24 @@
       font-weight: bold;
     }
 
-    #slideshow img {
-      max-width: 100%;
-      max-height: 230px;          /* IMAGE SCALES DOWN */
-      width: auto;
-      height: auto;
+    .image-frame {
+      width: 100%;
+      height: 260px;                 /* FIXED CARD */
+      background: #ffe6f0;           /* SOFT PINK */
       border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       box-shadow: 0 6px 15px rgba(0,0,0,0.2);
     }
 
-    /* 🌸 FINAL MESSAGE */
+    .image-frame img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;           /* KEY LINE */
+      border-radius: 12px;
+    }
+
     #finalMessage {
       display: none;
       margin-top: 25px;
@@ -138,7 +141,7 @@
       Every smile of yours means the world to me.
     </p>
 
-    <button id="funButton" onclick="showMessage()">Try to click me 💕</button>
+    <button id="funButton">Try to click me 💕</button>
     <div id="tease">Catch me if you can 😜</div>
 
     <div class="hidden-message" id="message">
@@ -154,7 +157,9 @@
 
     <div id="slideshow">
       <div id="yearLabel"></div>
-      <img id="slideImage" src="" alt="Us" />
+      <div class="image-frame">
+        <img id="slideImage" src="" alt="Us" />
+      </div>
     </div>
 
     <div id="finalMessage">
@@ -169,30 +174,41 @@
   <script>
     const music = document.getElementById('bgMusic');
     const usButton = document.getElementById('usButton');
-    const slideshow = document.getElementById('slideshow');
     const slideImage = document.getElementById('slideImage');
     const yearLabel = document.getElementById('yearLabel');
     const finalMessage = document.getElementById('finalMessage');
+    const funButton = document.getElementById('funButton');
+    const tease = document.getElementById('tease');
 
-    let photos = {};
-    let years = [];
-    let yearIndex = 0;
-    let photoIndex = 0;
-    let interval;
+    let clicked = false;
 
-    function showMessage() {
+    function moveButton() {
+      if (clicked) return;
+      const x = Math.random() * 200 - 100;
+      const y = Math.random() * 120 - 60;
+      funButton.style.transform = `translate(${x}px, ${y}px)`;
+    }
+
+    funButton.addEventListener('mouseenter', moveButton);
+
+    funButton.addEventListener('click', () => {
+      clicked = true;
+      funButton.style.transform = 'translate(0,0)';
+      funButton.disabled = true;
+
       document.getElementById('message').style.display = 'block';
-      document.getElementById('funButton').disabled = true;
-      document.getElementById('tease').innerText = 'Ok you caught me 😘';
+      tease.innerText = 'Ok you caught me 😘';
       usButton.style.display = 'inline-block';
 
       music.volume = 0.6;
       music.play().catch(() => {});
-    }
+    });
+
+    let photos = {}, years = [], yearIndex = 0, photoIndex = 0, interval;
 
     async function startSlideshow() {
       usButton.style.display = 'none';
-      slideshow.style.display = 'block';
+      document.getElementById('slideshow').style.display = 'block';
 
       const res = await fetch('photos.json');
       photos = await res.json();
@@ -217,7 +233,7 @@
 
       if (yearIndex >= years.length) {
         clearInterval(interval);
-        slideshow.style.display = 'none';
+        document.getElementById('slideshow').style.display = 'none';
         finalMessage.style.display = 'block';
         fadeOutMusic();
       }
@@ -225,12 +241,8 @@
 
     function fadeOutMusic() {
       const fade = setInterval(() => {
-        if (music.volume > 0.02) {
-          music.volume -= 0.02;
-        } else {
-          music.pause();
-          clearInterval(fade);
-        }
+        if (music.volume > 0.02) music.volume -= 0.02;
+        else { music.pause(); clearInterval(fade); }
       }, 200);
     }
   </script>
