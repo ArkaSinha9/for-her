@@ -25,7 +25,6 @@
       width: 90%;
       text-align: center;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-      position: relative;
     }
 
     h1 {
@@ -49,6 +48,11 @@
       100% { transform: scale(1); }
     }
 
+    @keyframes floatUp {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-300px); }
+    }
+
     button {
       margin-top: 20px;
       padding: 10px 22px;
@@ -58,7 +62,7 @@
       color: white;
       font-size: 1rem;
       cursor: pointer;
-      transition: background 0.3s, transform 0.2s;
+      transition: background 0.3s;
     }
 
     button:hover {
@@ -84,11 +88,11 @@
       background: #ff85ad;
     }
 
-    /* 🖼️ SLIDESHOW — UNCHANGED */
+    /* 🖼️ SLIDESHOW — RESIZE ONLY (NO CROP) */
     #slideshow {
       display: none;
       margin-top: 25px;
-      height: 280px;
+      height: 280px;              /* FIXED SPACE */
     }
 
     #yearLabel {
@@ -99,13 +103,14 @@
 
     #slideshow img {
       max-width: 100%;
-      max-height: 230px;
+      max-height: 230px;          /* IMAGE SCALES DOWN */
       width: auto;
       height: auto;
       border-radius: 15px;
       box-shadow: 0 6px 15px rgba(0,0,0,0.2);
     }
 
+    /* 🌸 FINAL MESSAGE */
     #finalMessage {
       display: none;
       margin-top: 25px;
@@ -133,7 +138,7 @@
       Every smile of yours means the world to me.
     </p>
 
-    <button id="funButton">Try to click me 💕</button>
+    <button id="funButton" onclick="showMessage()">Try to click me 💕</button>
     <div id="tease">Catch me if you can 😜</div>
 
     <div class="hidden-message" id="message">
@@ -168,46 +173,22 @@
     const slideImage = document.getElementById('slideImage');
     const yearLabel = document.getElementById('yearLabel');
     const finalMessage = document.getElementById('finalMessage');
-    const funButton = document.getElementById('funButton');
-    const tease = document.getElementById('tease');
 
-    /* 🏃 RUNAWAY BUTTON LOGIC (ADDED) */
-    let clicked = false;
-
-    function moveButton() {
-      if (clicked) return;
-
-      const x = Math.random() * 200 - 100;
-      const y = Math.random() * 120 - 60;
-
-      funButton.style.transform = `translate(${x}px, ${y}px)`;
-    }
-
-    funButton.addEventListener('mouseenter', moveButton);
-
-    /* ORIGINAL LOGIC + stop movement after click */
-    function showMessage() {
-      clicked = true;
-      funButton.removeEventListener('mouseenter', moveButton);
-      funButton.style.transform = 'translate(0,0)';
-      funButton.disabled = true;
-
-      document.getElementById('message').style.display = 'block';
-      tease.innerText = 'Ok you caught me 😘';
-      usButton.style.display = 'inline-block';
-
-      music.volume = 0.6;
-      music.play().catch(() => {});
-    }
-
-    funButton.addEventListener('click', showMessage);
-
-    /* SLIDESHOW — UNCHANGED */
     let photos = {};
     let years = [];
     let yearIndex = 0;
     let photoIndex = 0;
     let interval;
+
+    function showMessage() {
+      document.getElementById('message').style.display = 'block';
+      document.getElementById('funButton').disabled = true;
+      document.getElementById('tease').innerText = 'Ok you caught me 😘';
+      usButton.style.display = 'inline-block';
+
+      music.volume = 0.6;
+      music.play().catch(() => {});
+    }
 
     async function startSlideshow() {
       usButton.style.display = 'none';
