@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>For You ❤️</title>
+
   <style>
     body {
       margin: 0;
@@ -21,6 +22,7 @@
       border-radius: 20px;
       padding: 30px;
       max-width: 420px;
+      width: 90%;
       text-align: center;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     }
@@ -53,7 +55,7 @@
 
     button {
       margin-top: 20px;
-      padding: 10px 20px;
+      padding: 10px 22px;
       border: none;
       border-radius: 25px;
       background: #ff4d88;
@@ -68,17 +70,17 @@
       background: #e6005c;
     }
 
+    #tease {
+      margin-top: 10px;
+      color: #ff4d88;
+      font-size: 0.9rem;
+    }
+
     .hidden-message {
       display: none;
       margin-top: 15px;
       color: #ff4d88;
       font-weight: bold;
-    }
-
-    #tease {
-      margin-top: 10px;
-      color: #ff4d88;
-      font-size: 0.9rem;
     }
 
     #usButton {
@@ -89,13 +91,7 @@
 
     #slideshow {
       display: none;
-      margin-top: 20px;
-    }
-
-    #slideshow img {
-      width: 100%;
-      border-radius: 15px;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+      margin-top: 25px;
     }
 
     #yearLabel {
@@ -103,12 +99,38 @@
       color: #ff4d88;
       font-weight: bold;
     }
+
+    #slideshow img {
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      border-radius: 15px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    }
+
+    /* 🌸 FINAL MESSAGE */
+    #finalMessage {
+      display: none;
+      margin-top: 25px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #ff4d88;
+      animation: fadeIn 3s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
+
 <body>
   <div class="card">
     <div class="heart">❤️</div>
+
     <h1>Hey Love</h1>
+
     <p>
       I made this little website just for you.
       Every smile of yours means the world to me.
@@ -132,10 +154,14 @@
       <div id="yearLabel"></div>
       <img id="slideImage" src="" alt="Us" />
     </div>
+
+    <div id="finalMessage">
+      Forever in every timeline, lifetime, universe — always with you ♾️
+    </div>
   </div>
 
   <audio id="bgMusic" loop>
-    <source src="music.mp3" type="audio/mpeg" />
+    <source src="music.mp3" type="audio/mpeg">
   </audio>
 
   <script>
@@ -146,12 +172,15 @@
     const slideshow = document.getElementById('slideshow');
     const slideImage = document.getElementById('slideImage');
     const yearLabel = document.getElementById('yearLabel');
+    const finalMessage = document.getElementById('finalMessage');
 
     let clicked = false;
     let photos = {};
     let years = [];
     let yearIndex = 0;
     let photoIndex = 0;
+    let slideshowInterval;
+    let fadeInterval;
 
     function moveButton() {
       if (clicked) return;
@@ -197,12 +226,11 @@
       usButton.style.display = 'none';
       slideshow.style.display = 'block';
 
-      if (years.length === 0) {
-        const response = await fetch('photos.json');
-        photos = await response.json();
-        years = Object.keys(photos).sort();
-      }
+      const response = await fetch('photos.json');
+      photos = await response.json();
+      years = Object.keys(photos).sort();
 
+      slideshowInterval = setInterval(showNextImage, 2500);
       showNextImage();
     }
 
@@ -214,12 +242,34 @@
       slideImage.src = `${year}/${images[photoIndex]}`;
 
       photoIndex++;
+
       if (photoIndex >= images.length) {
         photoIndex = 0;
-        yearIndex = (yearIndex + 1) % years.length;
+        yearIndex++;
       }
 
-      setTimeout(showNextImage, 2500);
+      if (yearIndex >= years.length) {
+        clearInterval(slideshowInterval);
+        endStory();
+      }
+    }
+
+    function endStory() {
+      slideshow.style.display = 'none';
+      finalMessage.style.display = 'block';
+      fadeOutMusic();
+    }
+
+    function fadeOutMusic() {
+      fadeInterval = setInterval(() => {
+        if (music.volume > 0.02) {
+          music.volume -= 0.02;
+        } else {
+          music.volume = 0;
+          music.pause();
+          clearInterval(fadeInterval);
+        }
+      }, 200);
     }
   </script>
 </body>
