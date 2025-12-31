@@ -88,10 +88,11 @@
       background: #ff85ad;
     }
 
-    /* 🎞️ SLIDESHOW FRAME — FIXED SIZE */
+    /* 🖼️ SLIDESHOW — RESIZE ONLY (NO CROP) */
     #slideshow {
       display: none;
       margin-top: 25px;
+      height: 280px;              /* FIXED SPACE */
     }
 
     #yearLabel {
@@ -100,22 +101,13 @@
       font-weight: bold;
     }
 
-    .image-frame {
-      width: 100%;
-      aspect-ratio: 4 / 5;       /* PERFECT FOR MIXED PHOTOS */
-      background: #fff0f6;
+    #slideshow img {
+      max-width: 100%;
+      max-height: 230px;          /* IMAGE SCALES DOWN */
+      width: auto;
+      height: auto;
       border-radius: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
       box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-    }
-
-    .image-frame img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;       /* NO CROP, NO STRETCH */
     }
 
     /* 🌸 FINAL MESSAGE */
@@ -162,9 +154,7 @@
 
     <div id="slideshow">
       <div id="yearLabel"></div>
-      <div class="image-frame">
-        <img id="slideImage" src="" alt="Us" />
-      </div>
+      <img id="slideImage" src="" alt="Us" />
     </div>
 
     <div id="finalMessage">
